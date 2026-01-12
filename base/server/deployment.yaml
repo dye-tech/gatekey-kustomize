@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatekey-server
+  labels:
+    app.kubernetes.io/name: gatekey
+    app.kubernetes.io/component: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gatekey
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gatekey
+        app.kubernetes.io/component: server
+    spec:
+      containers:
+        - name: server
+          image: dyetech/gatekey-server:1.2.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: GATEKEY_DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: gatekey-config
+                  key: database-host
+            - name: GATEKEY_DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: gatekey-config
+                  key: database-port
+            - name: GATEKEY_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: gatekey-config
+                  key: database-name
+            - name: GATEKEY_DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: gatekey-secrets
+                  key: database-user
+            - name: GATEKEY_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gatekey-secrets
+                  key: database-password
+            - name: GATEKEY_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: gatekey-secrets
+                  key: jwt-secret
+            - name: GATEKEY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gatekey-secrets
+                  key: admin-password
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

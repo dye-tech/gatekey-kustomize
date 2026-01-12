@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatekey-wireguard-gateway
+  labels:
+    app.kubernetes.io/name: gatekey
+    app.kubernetes.io/component: wireguard-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gatekey
+      app.kubernetes.io/component: wireguard-gateway
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gatekey
+        app.kubernetes.io/component: wireguard-gateway
+    spec:
+      containers:
+        - name: wireguard-gateway
+          image: dyetech/gatekey-wireguard-gateway:1.2.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: wireguard
+              containerPort: 51820
+              protocol: UDP
+          env:
+            - name: GATEKEY_SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gatekey-vpn-config
+                  key: server-url
+            - name: GATEKEY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gatekey-vpn-tokens
+                  key: wireguard-gateway-token
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

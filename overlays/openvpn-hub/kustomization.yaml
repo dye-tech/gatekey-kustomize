@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# OpenVPN Hub: Mesh central node
+# Use this to deploy a hub for site-to-site mesh networking
+
+namespace: gatekey
+
+resources:
+  - ../../base/openvpn-hub
+
+commonLabels:
+  app.kubernetes.io/instance: gatekey-openvpn-hub
+
+# Override with your control plane URL and token
+secretGenerator:
+  - name: gatekey-vpn-tokens
+    behavior: replace
+    literals:
+      - openvpn-hub-token=CHANGE_ME
+
+configMapGenerator:
+  - name: gatekey-vpn-config
+    behavior: replace
+    literals:
+      - server-url=https://gatekey.example.com

@@ -1,0 +1,56 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Full Stack: Server + Web + PostgreSQL + OpenVPN Gateway
+# Use this for all-in-one deployments
+
+namespace: gatekey
+
+resources:
+  - ../../base/server
+  - ../../base/web
+  - ../../base/postgresql
+  - ../../base/openvpn-gateway
+
+commonLabels:
+  app.kubernetes.io/instance: gatekey-full-stack
+
+# Patch web to use server configmap
+patches:
+  - target:
+      kind: Deployment
+      name: gatekey-web
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/valueFrom/configMapKeyRef/name
+        value: gatekey-config
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/valueFrom/configMapKeyRef/key
+        value: server-url
+  - target:
+      kind: Deployment
+      name: gatekey-openvpn-gateway
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/valueFrom/configMapKeyRef/name
+        value: gatekey-config
+
+# Override secrets with your values
+secretGenerator:
+  - name: gatekey-secrets
+    behavior: replace
+    literals:
+      - database-user=gatekey
+      - database-password=CHANGE_ME
+      - jwt-secret=CHANGE_ME_GENERATE_RANDOM_STRING
+      - admin-password=CHANGE_ME
+  - name: gatekey-vpn-tokens
+    behavior: replace
+    literals:
+      - openvpn-gateway-token=CHANGE_ME
+
+configMapGenerator:
+  - name: gatekey-config
+    behavior: merge
+    literals:
+      - server-url=http://gatekey-server:8080

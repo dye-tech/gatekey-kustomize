@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatekey-vpn-config
+  labels:
+    app.kubernetes.io/name: gatekey
+    app.kubernetes.io/component: openvpn-spoke
+data:
+  server-url: "http://gatekey-server:8080"
+  hub-address: "CHANGE_ME"
+  hub-port: "1194"

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatekey-web-config
+  labels:
+    app.kubernetes.io/name: gatekey
+    app.kubernetes.io/component: web
+data:
+  api-url: "http://gatekey-server:8080"

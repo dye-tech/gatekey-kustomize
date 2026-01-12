@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatekey-vpn-config
+  labels:
+    app.kubernetes.io/name: gatekey
+    app.kubernetes.io/component: openvpn-gateway
+data:
+  server-url: "http://gatekey-server:8080"

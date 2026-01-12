@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# WireGuard Spoke: Mesh edge node
+# Use this to deploy a WireGuard spoke at branch offices
+
+namespace: gatekey
+
+resources:
+  - ../../base/wireguard-spoke
+
+commonLabels:
+  app.kubernetes.io/instance: gatekey-wireguard-spoke
+
+# Override with your control plane URL, hub address, and token
+secretGenerator:
+  - name: gatekey-vpn-tokens
+    behavior: replace
+    literals:
+      - wireguard-spoke-token=CHANGE_ME
+
+configMapGenerator:
+  - name: gatekey-vpn-config
+    behavior: replace
+    literals:
+      - server-url=https://gatekey.example.com
+      - hub-address=wg-hub.example.com
+      - hub-port="51820"

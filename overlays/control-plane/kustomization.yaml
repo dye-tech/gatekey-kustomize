@@ -1,0 +1,44 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Control Plane: Server + Web + PostgreSQL
+# Use this for central management deployment
+
+namespace: gatekey
+
+resources:
+  - ../../base/server
+  - ../../base/web
+  - ../../base/postgresql
+
+commonLabels:
+  app.kubernetes.io/instance: gatekey-control-plane
+
+# Patch to use same configmap across components
+patches:
+  - target:
+      kind: Deployment
+      name: gatekey-web
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/valueFrom/configMapKeyRef/name
+        value: gatekey-config
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/valueFrom/configMapKeyRef/key
+        value: server-url
+
+# Override secrets with your values
+secretGenerator:
+  - name: gatekey-secrets
+    behavior: replace
+    literals:
+      - database-user=gatekey
+      - database-password=CHANGE_ME
+      - jwt-secret=CHANGE_ME_GENERATE_RANDOM_STRING
+      - admin-password=CHANGE_ME
+
+configMapGenerator:
+  - name: gatekey-config
+    behavior: merge
+    literals:
+      - server-url=http://gatekey-server:8080

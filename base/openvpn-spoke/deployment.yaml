@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatekey-openvpn-spoke
+  labels:
+    app.kubernetes.io/name: gatekey
+    app.kubernetes.io/component: openvpn-spoke
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gatekey
+      app.kubernetes.io/component: openvpn-spoke
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gatekey
+        app.kubernetes.io/component: openvpn-spoke
+    spec:
+      containers:
+        - name: openvpn-spoke
+          image: dyetech/gatekey-mesh-gateway:1.2.2
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: GATEKEY_SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gatekey-vpn-config
+                  key: server-url
+            - name: GATEKEY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gatekey-vpn-tokens
+                  key: openvpn-spoke-token
+            - name: GATEKEY_HUB_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: gatekey-vpn-config
+                  key: hub-address
+            - name: GATEKEY_HUB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: gatekey-vpn-config
+                  key: hub-port
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi

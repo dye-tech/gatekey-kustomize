@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gatekey-wireguard-hub
+  labels:
+    app.kubernetes.io/name: gatekey
+    app.kubernetes.io/component: wireguard-hub
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 51820
+      targetPort: wireguard
+      protocol: UDP
+      name: wireguard
+  selector:
+    app.kubernetes.io/name: gatekey
+    app.kubernetes.io/component: wireguard-hub
