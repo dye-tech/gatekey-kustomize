@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: openvpn-hub
-          image: dyetech/gatekey-hub:1.2.2
+          image: dyetech/gatekey-hub:1.4.6
           imagePullPolicy: IfNotPresent
           ports:
             - name: openvpn

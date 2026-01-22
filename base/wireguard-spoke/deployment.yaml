@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: wireguard-spoke
-          image: dyetech/gatekey-wireguard-mesh-gateway:1.2.2
+          image: dyetech/gatekey-wireguard-mesh-gateway:1.4.6
           imagePullPolicy: IfNotPresent
           env:
             - name: GATEKEY_SERVER_URL

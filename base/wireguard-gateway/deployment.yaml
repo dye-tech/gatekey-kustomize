@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: wireguard-gateway
-          image: dyetech/gatekey-wireguard-gateway:1.2.2
+          image: dyetech/gatekey-wireguard-gateway:1.4.6
           imagePullPolicy: IfNotPresent
           ports:
             - name: wireguard
