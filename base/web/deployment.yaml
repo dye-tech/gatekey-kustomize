@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: dyetech/gatekey-web:1.4.6
+          image: dyetech/gatekey-web:1.5.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
