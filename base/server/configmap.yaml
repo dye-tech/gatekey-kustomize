@@ -6,7 +6,63 @@ metadata:
     app.kubernetes.io/name: gatekey
     app.kubernetes.io/component: server
 data:
-  database-host: "gatekey-postgresql"
-  database-port: "5432"
-  database-name: "gatekey"
-  server-url: "http://gatekey-server:8080"
+  gatekey.yaml: |
+    server:
+      address: ":8080"
+      tls_enabled: false  # TLS terminated at ingress
+      cors_origins:
+        - "https://gatekey.example.com"
+      trusted_proxies:
+        - "10.0.0.0/8"
+        - "172.16.0.0/12"
+        - "192.168.0.0/16"
+
+    database:
+      driver: "postgres"
+      url: "${DATABASE_URL}"
+      max_open_conns: 25
+      max_idle_conns: 5
+      conn_max_lifetime: "5m"
+      ssl_mode: "${DATABASE_SSL_MODE}"
+
+    auth:
+      session:
+        validity: "12h"
+        cookie_name: "gatekey_session"
+        secure: true
+        http_only: true
+        same_site: "lax"
+
+      oidc:
+        enabled: true
+        providers:
+          - name: "default"
+            display_name: "SSO Login"
+            issuer: "https://your-idp.example.com/realms/master"
+            client_id: "${OIDC_CLIENT_ID}"
+            client_secret: "${OIDC_CLIENT_SECRET}"
+            redirect_url: "https://gatekey.example.com/api/v1/auth/oidc/callback"
+            scopes:
+              - "openid"
+              - "profile"
+              - "email"
+              - "groups"
+
+    security:
+      proxy_ssrf_protection: false
+      proxy_dns_rebinding_protection: false
+      proxy_tls_verify: false
+
+    pki:
+      key_algorithm: "ecdsa256"
+      organization: "GateKey"
+      cert_validity: "24h"
+      ca_validity: "8760h"  # 1 year
+
+    logging:
+      level: "info"
+      format: "json"
+
+    metrics:
+      enabled: true
+      path: "/metrics"
